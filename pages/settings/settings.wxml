@@ -1,0 +1,51 @@
+<view class="container">
+  <view class="header">
+    <text class="title">设置</text>
+  </view>
+
+  <view class="settings-area">
+    <!-- 音色选择 -->
+    <view class="setting-item">
+      <view class="setting-label">音色选择</view>
+      <picker class="setting-picker" mode="selector" range="{{voiceTones}}" range-key="name" value="{{index}}" bindchange="onVoiceChange">
+        <view class="picker-text">
+          {{voiceTones[index].name}}
+        </view>
+      </picker>
+    </view>
+
+    <!-- 语言选择 -->
+    <view class="setting-item">
+      <view class="setting-label">语言选择</view>
+      <picker class="setting-picker" mode="selector" range="{{languages}}" range-key="name" value="{{langIndex}}" bindchange="onLanguageChange">
+        <view class="picker-text">
+          {{languages[langIndex].name}}
+        </view>
+      </picker>
+    </view>
+
+    <!-- 音量调节 -->
+    <view class="setting-item">
+      <view class="setting-label">音量调节</view>
+      <view class="volume-slider">
+        <image class="volume-icon" src="/assets/volume-low.png" mode="aspectFit"></image>
+        <slider 
+          class="slider" 
+          min="0" 
+          max="100" 
+          value="{{volumeValue}}" 
+          block-size="28" 
+          activeColor="#007AFF" 
+          backgroundColor="#ddd" 
+          bindchange="onVolumeChange"
+        />
+        <image class="volume-icon" src="/assets/volume-high.png" mode="aspectFit"></image>
+      </view>
+      <view class="volume-value">{{volumeValue}}%</view>
+    </view>
+  </view>
+
+  <view class="button-area">
+    <button class="btn save-btn" bindtap="saveSettings">保存设置</button>
+  </view>
+</view> 

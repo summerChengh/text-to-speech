@@ -1,0 +1,16 @@
+<view class="container">
+  <view class="header">
+    <text class="title">编辑文本</text>
+  </view>
+
+  <view class="editor-area">
+    <textarea class="editor" placeholder="请输入需要转换为语音的文本..." value="{{content}}" bindinput="onContentChange" maxlength="500" auto-focus auto-height></textarea>
+    <view class="word-count">{{content.length}}/500</view>
+  </view>
+
+  <view class="button-area">
+    <button class="btn cancel-btn" bindtap="cancelEdit">取消</button>
+    <button class="btn clear-btn" bindtap="clearContent">清空</button>
+    <button class="btn save-btn" bindtap="saveContent" disabled="{{!content}}">保存</button>
+  </view>
+</view> 

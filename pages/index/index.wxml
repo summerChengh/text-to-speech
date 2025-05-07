@@ -1,0 +1,67 @@
+<view class="container">
+  <view class="header">
+    <text class="title">文字转语音</text>
+    <view class="header-btns">
+      <view class="settings-btn" bindtap="goToSettings">
+        <text class="settings-text">设置</text>
+      </view>
+      <view class="api-btn" bindtap="goToApiConfig">
+        <text class="api-text">API</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content">
+    <view class="text-area">
+      <text class="text-content" wx:if="{{textContent}}">{{textContent}}</text>
+      <text class="placeholder" wx:else>暂无内容，请点击"编辑文本"添加</text>
+    </view>
+    
+    <view class="voice-settings" wx:if="{{textContent}}">
+      <text class="voice-info">音色: {{voiceName}} | 音量: {{volume}}%</text>
+    </view>
+    
+    <!-- API配置状态提示 -->
+    <view class="api-status-warning" wx:if="{{!apiConfigured}}">
+      <text>未配置科大讯飞API，无法使用语音功能</text>
+      <button class="btn-small config-btn" bindtap="goToApiConfig">配置API</button>
+    </view>
+  </view>
+
+  <view class="button-area">
+    <button class="btn edit-btn" bindtap="editText">
+      <image class="btn-icon" src="/assets/edit.png" mode="aspectFit"></image>
+      <text>编辑文本</text>
+    </button>
+    
+    <button class="btn text-btn" bindtap="showText">
+      <image class="btn-icon" src="/assets/text.png" mode="aspectFit"></image>
+      <text>查看文本</text>
+    </button>
+    
+    <button class="btn play-btn {{isPlaying ? 'playing' : ''}}" bindtap="playAudio" disabled="{{isPlaying || !textContent}}">
+      <image class="btn-icon" src="/assets/{{isPlaying ? 'pause' : 'play'}}.png" mode="aspectFit"></image>
+      <text>{{isPlaying ? '播放中...' : '语音播放'}}</text>
+    </button>
+    
+    <view class="playback-controls" wx:if="{{isPlaying}}">
+      <slider 
+        class="progress-slider" 
+        min="0" 
+        max="100"
+        value="{{playProgress}}" 
+        block-size="24" 
+        activeColor="#007AFF" 
+        backgroundColor="#ddd" 
+        bindchange="onProgressChange"
+      />
+      <button class="btn-small stop-btn" bindtap="stopAudio">停止</button>
+    </view>
+  </view>
+
+  <view class="settings-button-container" wx:if="{{textContent}}">
+    <button class="btn settings-btn-bottom" bindtap="goToSettings">
+      <text>调整音色和音量</text>
+    </button>
+  </view>
+</view> 
