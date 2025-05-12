@@ -1,0 +1,108 @@
+<view class="container">
+  <view class="page-title">个人中心</view>
+  
+  <!-- 用户信息 -->
+  <view class="user-card">
+    <view class="avatar-container">
+      <image class="avatar" src="{{userInfo.avatarUrl || '/assets/icons/default-avatar.png'}}" mode="aspectFill"></image>
+    </view>
+    <view class="user-info">
+      <view class="username">{{userInfo.nickName || '未登录'}}</view>
+      <view class="login-btn" wx:if="{{!hasUserInfo}}" bindtap="getUserProfile">点击登录</view>
+    </view>
+  </view>
+  
+  <!-- 功能菜单 -->
+  <view class="menu-list">
+    <view class="menu-group">
+      <view class="menu-item" bindtap="navigateToVoices">
+        <view class="menu-icon">
+          <image src="/assets/icons/voice.png" mode="aspectFit"></image>
+        </view>
+        <view class="menu-title">我的音色</view>
+        <view class="menu-arrow">></view>
+      </view>
+      
+      <view class="menu-item" bindtap="navigateToHistory">
+        <view class="menu-icon">
+          <image src="/assets/icons/history.png" mode="aspectFit"></image>
+        </view>
+        <view class="menu-title">使用记录</view>
+        <view class="menu-arrow">></view>
+      </view>
+    </view>
+    
+    <view class="menu-group">
+      <view class="menu-item" bindtap="navigateToSettings">
+        <view class="menu-icon">
+          <image src="/assets/icons/settings.png" mode="aspectFit"></image>
+        </view>
+        <view class="menu-title">设置</view>
+        <view class="menu-arrow">></view>
+      </view>
+      
+      <view class="menu-item" bindtap="showAbout">
+        <view class="menu-icon">
+          <image src="/assets/icons/about.png" mode="aspectFit"></image>
+        </view>
+        <view class="menu-title">关于我们</view>
+        <view class="menu-arrow">></view>
+      </view>
+      
+      <view class="menu-item" bindtap="showFeedback">
+        <view class="menu-icon">
+          <image src="/assets/icons/feedback.png" mode="aspectFit"></image>
+        </view>
+        <view class="menu-title">意见反馈</view>
+        <view class="menu-arrow">></view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text>当前版本 v1.0.0</text>
+  </view>
+  
+  <!-- 关于我们弹窗 -->
+  <view class="modal-container" wx:if="{{showAboutModal}}">
+    <view class="modal-mask" bindtap="hideAbout"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <view class="modal-title">关于我们</view>
+        <view class="modal-close" bindtap="hideAbout">×</view>
+      </view>
+      <view class="modal-body">
+        <view class="app-logo">
+          <image src="/assets/icons/app-logo.png" mode="aspectFit"></image>
+        </view>
+        <view class="app-name">智能语音播报助手</view>
+        <view class="app-version">v1.0.0</view>
+        <view class="app-desc">专业的文本转语音、实时语音播报应用，支持多种音色和自定义配置，让您的文字有声有色。</view>
+        <view class="copyright">© 2023 智能语音播报助手 保留所有权利</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 意见反馈弹窗 -->
+  <view class="modal-container" wx:if="{{showFeedbackModal}}">
+    <view class="modal-mask" bindtap="hideFeedback"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <view class="modal-title">意见反馈</view>
+        <view class="modal-close" bindtap="hideFeedback">×</view>
+      </view>
+      <view class="modal-body">
+        <view class="feedback-form">
+          <view class="form-item">
+            <textarea class="feedback-input" placeholder="请输入您的意见或建议..." bindinput="onFeedbackInput" value="{{feedbackContent}}"></textarea>
+          </view>
+          <view class="form-item">
+            <input class="contact-input" placeholder="联系方式（选填）" bindinput="onContactInput" value="{{contactInfo}}"></input>
+          </view>
+          <button class="submit-btn" bindtap="submitFeedback">提交反馈</button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

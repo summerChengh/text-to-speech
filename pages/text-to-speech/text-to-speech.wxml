@@ -1,0 +1,68 @@
+<view class="container">
+  <view class="page-title">文本转语音</view>
+  
+  <!-- 上传区域 -->
+  <view class="upload-area">
+    <view class="upload-box" bindtap="chooseFile">
+      <view class="upload-icon">+</view>
+      <view class="upload-text">拖拽文件或点击上传</view>
+      <view class="upload-hint">支持 .txt/.docx 格式</view>
+    </view>
+  </view>
+
+  <!-- 文本预览区 -->
+  <view class="preview-area" wx:if="{{textContent}}">
+    <view class="section-title">文本内容预览</view>
+    <scroll-view class="text-preview" scroll-y>
+      <text>{{textContent}}</text>
+    </scroll-view>
+    <view class="word-count">{{textLength}}/5000字</view>
+  </view>
+
+  <!-- 控制面板 -->
+  <view class="control-panel" wx:if="{{textContent}}">
+    <view class="section-title">播放控制</view>
+    
+    <!-- 音色选择 -->
+    <view class="control-item">
+      <text class="control-label">音色选择</text>
+      <picker bindchange="onVoiceChange" value="{{voiceIndex}}" range="{{voiceList}}" range-key="name">
+        <view class="picker-view">
+          <text>{{currentVoice.name}}</text>
+          <text class="arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 语速调节 -->
+    <view class="control-item">
+      <text class="control-label">语速调节</text>
+      <view class="slider-container">
+        <text class="slider-label">慢</text>
+        <slider bindchange="onSpeedChange" min="0" max="100" value="{{speed}}" block-size="20" show-value></slider>
+        <text class="slider-label">快</text>
+      </view>
+    </view>
+    
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button class="btn-action {{isPlaying ? 'btn-pause' : 'btn-play'}}" bindtap="togglePlay">
+        {{isPlaying ? '暂停' : '播放'}}
+      </button>
+      <button class="btn-action btn-stop" bindtap="stopPlay" wx:if="{{isPlaying}}">停止</button>
+    </view>
+  </view>
+
+  <!-- 状态提示 -->
+  <view class="status-area" wx:if="{{isProcessing}}">
+    <view class="progress-container">
+      <progress percent="{{progressPercent}}" stroke-width="3" activeColor="#4A90E2" backgroundColor="#f0f0f0"/>
+      <text class="progress-text">{{progressText}}</text>
+    </view>
+  </view>
+
+  <!-- 错误提示 -->
+  <view class="error-area" wx:if="{{errorMsg}}">
+    <text class="error-text">{{errorMsg}}</text>
+  </view>
+</view> 

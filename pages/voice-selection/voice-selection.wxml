@@ -1,0 +1,74 @@
+<view class="container">
+  <view class="page-title">音色选择</view>
+  
+  <!-- 标签分类 -->
+  <view class="tab-container">
+    <view class="tab {{activeTab === 'preset' ? 'active' : ''}}" bindtap="switchTab" data-tab="preset">预设音色</view>
+    <view class="tab {{activeTab === 'custom' ? 'active' : ''}}" bindtap="switchTab" data-tab="custom">我的音色</view>
+  </view>
+  
+  <!-- 预设音色列表 -->
+  <view class="voice-list" wx:if="{{activeTab === 'preset'}}">
+    <block wx:for="{{presetVoices}}" wx:key="id">
+      <view class="voice-card">
+        <view class="voice-info">
+          <view class="voice-name">{{item.name}}</view>
+          <view class="voice-tag">{{item.tag}}</view>
+        </view>
+        <view class="voice-actions">
+          <view class="action-btn listen" bindtap="listenVoice" data-voice="{{item}}">
+            <image class="action-icon" src="/assets/icons/play-small.png" mode="aspectFit"></image>
+            <text>试听</text>
+          </view>
+          <view class="action-btn set-default {{defaultVoice.id === item.id ? 'active' : ''}}" bindtap="setAsDefault" data-voice="{{item}}">
+            <image class="action-icon" src="/assets/icons/{{defaultVoice.id === item.id ? 'star-filled' : 'star'}}.png" mode="aspectFit"></image>
+            <text>{{defaultVoice.id === item.id ? '默认' : '设为默认'}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+  
+  <!-- 自定义音色列表 -->
+  <view class="voice-list" wx:if="{{activeTab === 'custom'}}">
+    <block wx:if="{{customVoices.length > 0}}">
+      <block wx:for="{{customVoices}}" wx:key="id">
+        <view class="voice-card">
+          <view class="voice-info">
+            <view class="voice-name">{{item.name}}</view>
+            <view class="voice-tag">{{item.tag || '自定义音色'}}</view>
+          </view>
+          <view class="voice-actions">
+            <view class="action-btn listen" bindtap="listenVoice" data-voice="{{item}}">
+              <image class="action-icon" src="/assets/icons/play-small.png" mode="aspectFit"></image>
+              <text>试听</text>
+            </view>
+            <view class="action-btn set-default {{defaultVoice.id === item.id ? 'active' : ''}}" bindtap="setAsDefault" data-voice="{{item}}">
+              <image class="action-icon" src="/assets/icons/{{defaultVoice.id === item.id ? 'star-filled' : 'star'}}.png" mode="aspectFit"></image>
+              <text>{{defaultVoice.id === item.id ? '默认' : '设为默认'}}</text>
+            </view>
+            <view class="action-btn delete" bindtap="deleteVoice" data-voice="{{item}}">
+              <image class="action-icon" src="/assets/icons/delete.png" mode="aspectFit"></image>
+              <text>删除</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </block>
+    <view class="empty-state" wx:else>
+      <image class="empty-icon" src="/assets/icons/empty-voice.png" mode="aspectFit"></image>
+      <view class="empty-text">您还没有自定义音色</view>
+      <view class="clone-btn" bindtap="navigateToClone">去克隆我的声音</view>
+    </view>
+  </view>
+  
+  <!-- 正在播放的提示 -->
+  <view class="playing-indicator" wx:if="{{isPlaying}}">
+    <view class="playing-content">
+      <view class="playing-name">正在试听: {{currentPlayingVoice.name}}</view>
+      <view class="playing-controls">
+        <view class="stop-btn" bindtap="stopPlaying">停止</view>
+      </view>
+    </view>
+  </view>
+</view> 

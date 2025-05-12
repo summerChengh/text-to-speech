@@ -4,49 +4,33 @@
     "ignore": [],
     "include": []
   },
+  "miniprogramRoot": "",
+  "compileType": "miniprogram",
+  "projectname": "智能语音播报助手",
   "setting": {
-    "urlCheck": true,
-    "es6": true,
-    "enhance": false,
-    "postcss": true,
-    "preloadBackgroundData": false,
-    "minified": true,
-    "newFeature": false,
-    "coverView": true,
-    "nodeModules": false,
-    "autoAudits": false,
-    "showShadowRootInWxmlPanel": true,
-    "scopeDataCheck": false,
-    "uglifyFileName": false,
-    "checkInvalidKey": true,
-    "checkSiteMap": true,
-    "uploadWithSourceMap": true,
-    "compileHotReLoad": false,
-    "useMultiFrameRuntime": true,
-    "useApiHook": true,
-    "useApiHostProcess": true,
+    "useCompilerPlugins": [
+      "sass"
+    ],
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
     },
-    "enableEngineNative": false,
-    "bundle": false,
-    "useIsolateContext": true,
-    "useCompilerModule": true,
-    "userConfirmedUseCompilerModuleSwitch": false,
-    "userConfirmedBundleSwitch": false,
-    "packNpmManually": false,
-    "packNpmRelationList": [],
-    "minifyWXSS": true
+    "condition": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "ignoreUploadUnusedFiles": true
   },
-  "compileType": "miniprogram",
-  "libVersion": "2.14.0",
-  "appid": "wxda763f10dccc882f",
-  "projectname": "文字转语音小程序",
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
   "condition": {},
+  "srcMiniprogramRoot": "",
+  "appid": "wx123456789012",
+  "libVersion": "2.30.2",
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
   }
-}
+} 

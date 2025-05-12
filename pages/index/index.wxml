@@ -1,67 +1,42 @@
 <view class="container">
+  <!-- 顶部导航栏 -->
   <view class="header">
-    <text class="title">文字转语音</text>
-    <view class="header-btns">
-      <view class="settings-btn" bindtap="goToSettings">
-        <text class="settings-text">设置</text>
+    <view class="title">智能语音播报助手</view>
+    <view class="user-avatar" bindtap="goToUserCenter">
+      <image wx:if="{{hasUserInfo}}" class="avatar" src="{{userInfo.avatarUrl}}"></image>
+      <view wx:else class="avatar-placeholder" bindtap="getUserProfile"></view>
+    </view>
+  </view>
+  
+  <!-- 功能卡片区域 -->
+  <view class="feature-container">
+    <block wx:for="{{features}}" wx:key="id">
+      <view class="feature-card" bindtap="navigateToFeature" data-feature="{{item}}">
+        <view class="feature-icon">
+          <image src="{{item.icon}}" mode="aspectFit"></image>
+        </view>
+        <view class="feature-info">
+          <view class="feature-title">{{item.title}}</view>
+          <view class="feature-desc">{{item.desc}}</view>
+        </view>
       </view>
-      <view class="api-btn" bindtap="goToApiConfig">
-        <text class="api-text">API</text>
+    </block>
+  </view>
+  
+  <!-- 底部提示 -->
+  <view class="footer-tips">
+    <view class="tips-text">首次使用需授权麦克风权限</view>
+    
+    <!-- 未授权麦克风权限时的提示 -->
+    <block wx:if="{{!hasMicPermission}}">
+      <view class="permission-button" bindtap="requestMicPermission">
+        <text>点击授权麦克风</text>
       </view>
-    </view>
-  </view>
-
-  <view class="content">
-    <view class="text-area">
-      <text class="text-content" wx:if="{{textContent}}">{{textContent}}</text>
-      <text class="placeholder" wx:else>暂无内容，请点击"编辑文本"添加</text>
-    </view>
+    </block>
     
-    <view class="voice-settings" wx:if="{{textContent}}">
-      <text class="voice-info">音色: {{voiceName}} | 音量: {{volume}}%</text>
-    </view>
-    
-    <!-- API配置状态提示 -->
-    <view class="api-status-warning" wx:if="{{!apiConfigured}}">
-      <text>未配置科大讯飞API，无法使用语音功能</text>
-      <button class="btn-small config-btn" bindtap="goToApiConfig">配置API</button>
-    </view>
-  </view>
-
-  <view class="button-area">
-    <button class="btn edit-btn" bindtap="editText">
-      <image class="btn-icon" src="/assets/edit.png" mode="aspectFit"></image>
-      <text>编辑文本</text>
-    </button>
-    
-    <button class="btn text-btn" bindtap="showText">
-      <image class="btn-icon" src="/assets/text.png" mode="aspectFit"></image>
-      <text>查看文本</text>
-    </button>
-    
-    <button class="btn play-btn {{isPlaying ? 'playing' : ''}}" bindtap="playAudio" disabled="{{isPlaying || !textContent}}">
-      <image class="btn-icon" src="/assets/{{isPlaying ? 'pause' : 'play'}}.png" mode="aspectFit"></image>
-      <text>{{isPlaying ? '播放中...' : '语音播放'}}</text>
-    </button>
-    
-    <view class="playback-controls" wx:if="{{isPlaying}}">
-      <slider 
-        class="progress-slider" 
-        min="0" 
-        max="100"
-        value="{{playProgress}}" 
-        block-size="24" 
-        activeColor="#007AFF" 
-        backgroundColor="#ddd" 
-        bindchange="onProgressChange"
-      />
-      <button class="btn-small stop-btn" bindtap="stopAudio">停止</button>
-    </view>
-  </view>
-
-  <view class="settings-button-container" wx:if="{{textContent}}">
-    <button class="btn settings-btn-bottom" bindtap="goToSettings">
-      <text>调整音色和音量</text>
-    </button>
+    <!-- 已授权麦克风权限的提示 -->
+    <block wx:else>
+      <view class="tips-text permission-granted">麦克风权限已授权 ✓</view>
+    </block>
   </view>
 </view> 

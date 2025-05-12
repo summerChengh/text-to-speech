@@ -1,0 +1,73 @@
+<view class="container">
+  <view class="page-title">实时输入播报</view>
+  
+  <!-- 文本输入区 -->
+  <view class="input-area">
+    <textarea 
+      class="text-input" 
+      placeholder="请输入要播报的文字（最多1000字）" 
+      maxlength="1000" 
+      bindinput="onTextInput"
+      value="{{textContent}}"
+    ></textarea>
+    <view class="word-count">{{textLength}}/1000</view>
+  </view>
+  
+  <!-- 快捷操作 -->
+  <view class="template-area">
+    <button class="template-btn" bindtap="showTemplates">插入常用模板</button>
+  </view>
+  
+  <!-- 播报控制按钮 -->
+  <view class="speech-control">
+    <button class="speech-btn {{isSpeaking ? 'active' : ''}}" bindtap="toggleSpeech">
+      <image class="btn-icon" src="/assets/icons/{{isSpeaking ? 'pause' : 'play'}}.png" mode="aspectFit"></image>
+      {{isSpeaking ? '停止播报' : '开始播报'}}
+    </button>
+  </view>
+  
+  <!-- 播放控制条 -->
+  <view class="playback-control" wx:if="{{isSpeaking}}">
+    <view class="progress-bar">
+      <view class="progress-inner" style="width: {{playProgress}}%"></view>
+    </view>
+    <view class="time-info">
+      <text>{{currentTime}}</text>
+      <text>{{totalTime}}</text>
+    </view>
+    <view class="volume-control">
+      <image class="volume-icon" src="/assets/icons/volume.png" mode="aspectFit"></image>
+      <slider 
+        class="volume-slider" 
+        min="0" 
+        max="100" 
+        value="{{volume}}" 
+        block-size="20" 
+        activeColor="#4A90E2"
+        bindchange="onVolumeChange"
+      ></slider>
+    </view>
+  </view>
+  
+  <!-- 模板选择弹窗 -->
+  <view class="template-modal" wx:if="{{showTemplateModal}}">
+    <view class="modal-mask" bindtap="hideTemplates"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <view class="modal-title">选择模板</view>
+        <view class="modal-close" bindtap="hideTemplates">×</view>
+      </view>
+      <view class="template-list">
+        <view 
+          class="template-item" 
+          wx:for="{{templates}}" 
+          wx:key="id" 
+          bindtap="selectTemplate" 
+          data-id="{{item.id}}"
+        >
+          {{item.name}}
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,115 @@
+<view class="container">
+  <view class="page-title">语音克隆</view>
+  
+  <!-- 警告提示 -->
+  <view class="warning-block">
+    <view class="warning-title">重要提示</view>
+    <view class="warning-content">
+      <text>禁止克隆他人声音或用于非法用途，违者将承担相应法律责任。</text>
+    </view>
+  </view>
+  
+  <!-- 上传录音指引 -->
+  <view class="guide-block">
+    <view class="guide-title">上传录音文件</view>
+    <view class="step-list">
+      <view class="step-item">
+        <view class="step-number">1</view>
+        <view class="step-content">
+          <text class="step-text">准备一段语音录音</text>
+          <text class="step-desc">需清晰人声，时长1-5分钟，无背景噪音</text>
+        </view>
+      </view>
+      <view class="step-item">
+        <view class="step-number">2</view>
+        <view class="step-content">
+          <text class="step-text">上传录音文件</text>
+          <text class="step-desc">支持.mp3/.wav格式</text>
+        </view>
+      </view>
+      <view class="step-item">
+        <view class="step-number">3</view>
+        <view class="step-content">
+          <text class="step-text">等待系统处理</text>
+          <text class="step-desc">大约需要30秒-2分钟</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 上传区域 -->
+  <view class="upload-area" wx:if="{{!isUploaded && !isProcessing}}">
+    <button class="upload-btn" bindtap="chooseRecord">选择录音文件</button>
+    <view class="upload-text">或</view>
+    <button class="record-btn" bindtap="startRecord">开始录制</button>
+  </view>
+  
+  <!-- 录音中状态 -->
+  <view class="recording-area" wx:if="{{isRecording}}">
+    <view class="recording-text">正在录音...</view>
+    <view class="recording-time">{{recordingTime}}</view>
+    <view class="recording-animation">
+      <view class="wave-item" wx:for="{{5}}" wx:key="*this"></view>
+    </view>
+    <view class="recording-controls">
+      <button class="control-btn btn-stop" bindtap="stopRecord">停止录音</button>
+    </view>
+  </view>
+  
+  <!-- 上传后状态 -->
+  <view class="file-info" wx:if="{{isUploaded && !isProcessing}}">
+    <view class="file-name">{{fileName}}</view>
+    <view class="file-controls">
+      <button class="control-btn btn-play" bindtap="playRecord">试听</button>
+      <button class="control-btn btn-confirm" bindtap="confirmUpload">确认使用</button>
+      <button class="control-btn btn-cancel" bindtap="cancelUpload">重新选择</button>
+    </view>
+  </view>
+  
+  <!-- 处理中状态 -->
+  <view class="processing-area" wx:if="{{isProcessing}}">
+    <view class="processing-text">正在处理您的声音...</view>
+    <view class="progress-bar">
+      <view class="progress-inner" style="width: {{progressPercent}}%"></view>
+    </view>
+    <view class="progress-text">{{progressPercent}}% 完成</view>
+    <view class="estimated-time">预计剩余时间: {{estimatedTime}}</view>
+  </view>
+  
+  <!-- 处理完成状态 -->
+  <view class="result-area" wx:if="{{isCompleted}}">
+    <view class="result-title">恭喜！您的声音已克隆成功</view>
+    <view class="result-preview">
+      <button class="preview-btn" bindtap="previewVoice">试听效果</button>
+    </view>
+    <view class="voice-form">
+      <view class="form-item">
+        <text class="form-label">为您的音色命名</text>
+        <input class="form-input" placeholder="例如: 我的声音01" bindinput="inputVoiceName" value="{{voiceName}}"/>
+      </view>
+      <view class="form-btn">
+        <button class="save-btn" bindtap="saveVoice" disabled="{{!voiceName}}">保存到我的音色</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 示例录音 -->
+  <view class="example-area" wx:if="{{!isUploaded && !isProcessing && !isRecording}}">
+    <view class="example-title">参考样本</view>
+    <view class="example-desc">点击试听合格的人声样本</view>
+    <view class="example-play" bindtap="playExample">
+      <image class="play-icon" src="/assets/icons/play.png" mode="aspectFit"></image>
+      <text>播放示例</text>
+    </view>
+  </view>
+  
+  <!-- 正在播放的提示 -->
+  <view class="playing-indicator" wx:if="{{isPlaying}}">
+    <view class="playing-content">
+      <view class="playing-name">{{playingText}}</view>
+      <view class="playing-controls">
+        <view class="stop-btn" bindtap="stopPlaying">停止</view>
+      </view>
+    </view>
+  </view>
+</view> 

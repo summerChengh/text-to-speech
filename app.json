@@ -1,22 +1,29 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/editor/editor",
-    "pages/settings/settings",
-    "pages/config/config"
+    "pages/text-to-speech/text-to-speech",
+    "pages/realtime-speech/realtime-speech",
+    "pages/voice-selection/voice-selection",
+    "pages/voice-clone/voice-clone",
+    "pages/user-center/user-center"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#ffffff",
-    "navigationBarTitleText": "文字转语音",
-    "navigationBarTextStyle": "black"
+    "navigationBarBackgroundColor": "#4A90E2",
+    "navigationBarTitleText": "智能语音播报助手",
+    "navigationBarTextStyle": "white"
   },
-  "style": "v2",
   "sitemapLocation": "sitemap.json",
-  "permission": {
-    "scope.userLocation": {
-      "desc": "你的位置信息将用于小程序定位"
-    }
+  "style": "v2",
+  "useExtendedLib": {
+    "weui": true
   },
-  "requiredBackgroundModes": ["audio"]
+  "permission": {
+    "scope.userInfo": {
+      "desc": "用于用户登录和个性化设置"
+    },
+    "scope.record": {
+      "desc": "用于语音克隆功能录制您的声音"
+    }
+  }
 } 

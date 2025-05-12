@@ -1,220 +1,151 @@
-/* 全局容器 */
+/* 容器样式 */
 .container {
+  padding: 40rpx 30rpx;
+  background-color: #f8f8f8;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  padding: 0;
-  height: 100vh;
-  background-color: #f5f5f5;
 }
 
-/* 头部样式 */
+/* 顶部导航栏 */
 .header {
-  width: 100%;
-  padding: 20rpx 30rpx;
-  background-color: #ffffff;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
-  margin-bottom: 30rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 60rpx;
 }
 
 .title {
   font-size: 40rpx;
   font-weight: bold;
-  color: #333333;
+  color: #333;
 }
 
-.settings-icon {
-  width: 40rpx;
-  height: 40rpx;
+.user-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #e0e0e0;
 }
 
-/* 内容区域 */
-.content {
+.avatar {
   width: 100%;
-  flex: 1;
-  padding: 0 30rpx;
+  height: 100%;
 }
 
-.text-area {
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #cccccc;
+  position: relative;
+}
+
+.avatar-placeholder::before,
+.avatar-placeholder::after {
+  content: '';
+  position: absolute;
   background-color: #ffffff;
-  border-radius: 12rpx;
-  padding: 30rpx;
-  min-height: 300rpx;
-  max-height: 50vh;
-  overflow-y: auto;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-  margin-bottom: 20rpx;
 }
 
-.text-content {
-  font-size: 30rpx;
-  color: #333333;
-  line-height: 1.5;
+.avatar-placeholder::before {
+  width: 40%;
+  height: 4rpx;
+  top: 50%;
+  left: 30%;
+  transform: translateY(-50%);
 }
 
-.placeholder {
-  font-size: 28rpx;
-  color: #999999;
+.avatar-placeholder::after {
+  width: 4rpx;
+  height: 40%;
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
 }
 
-.voice-settings {
-  background-color: #fff;
-  border-radius: 8rpx;
-  padding: 15rpx;
-  margin-bottom: 20rpx;
+/* 功能卡片区域 */
+.feature-container {
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 60rpx;
 }
 
-.voice-info {
-  font-size: 24rpx;
-  color: #666;
-}
-
-/* 按钮区域 */
-.button-area {
-  width: 100%;
+.feature-card {
+  width: 47%;
+  height: 240rpx;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  margin-bottom: 30rpx;
   padding: 30rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s;
 }
 
-.btn {
-  width: 100%;
-  height: 88rpx;
-  line-height: 88rpx;
-  border-radius: 44rpx;
+.feature-card:active {
+  transform: scale(0.98);
+}
+
+.feature-icon {
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+}
+
+.feature-icon image {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.feature-info {
+  margin-top: 20rpx;
+}
+
+.feature-title {
   font-size: 32rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20rpx;
-}
-
-.btn-icon {
-  width: 36rpx;
-  height: 36rpx;
-  margin-right: 15rpx;
-}
-
-.edit-btn {
-  background-color: #4CD964;
-  color: #ffffff;
-}
-
-.text-btn {
-  background-color: #FF9500;
-  color: #ffffff;
-}
-
-.play-btn {
-  background-color: #007AFF;
-  color: #ffffff;
-}
-
-.playing {
-  background-color: #5AC8FA;
-}
-
-.play-btn[disabled] {
-  background-color: #999999;
-  color: #ffffff;
-  opacity: 0.6;
-}
-
-.playback-controls {
-  margin-top: 10rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.progress-slider {
-  width: 100%;
-  margin-bottom: 15rpx;
-}
-
-.btn-small {
-  width: 200rpx;
-  height: 60rpx;
-  line-height: 60rpx;
-  border-radius: 30rpx;
-  font-size: 28rpx;
-  color: #ffffff;
-  background-color: #FF3B30;
-}
-
-.settings-btn {
-  padding: 6rpx 20rpx;
-  border-radius: 30rpx;
-  background-color: #007AFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.settings-text {
-  font-size: 28rpx;
-  color: #ffffff;
-}
-
-.settings-button-container {
-  width: 100%;
-  padding: 0 30rpx 20rpx 30rpx;
-}
-
-.settings-btn-bottom {
-  background-color: #5AC8FA;
-  color: #ffffff;
-}
-
-.header-btns {
-  display: flex;
-  flex-direction: row;
-}
-
-.settings-btn, .api-btn {
-  padding: 6rpx 20rpx;
-  border-radius: 30rpx;
-  background-color: #007AFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 10rpx;
-}
-
-.settings-text, .api-text {
-  font-size: 28rpx;
-  color: #ffffff;
-}
-
-.api-status-warning {
-  background-color: #FFE5E5;
-  border: 1px solid #FF7070;
-  border-radius: 8rpx;
-  padding: 15rpx;
-  margin-bottom: 20rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.api-status-warning text {
-  font-size: 24rpx;
-  color: #FF3B30;
+  font-weight: bold;
+  color: #333;
   margin-bottom: 10rpx;
 }
 
-.config-btn {
-  background-color: #FF3B30;
-  color: #ffffff;
+.feature-desc {
   font-size: 24rpx;
-  height: 50rpx;
-  line-height: 50rpx;
-  padding: 0 20rpx;
-  border-radius: 25rpx;
+  color: #888;
+}
+
+/* 底部提示 */
+.footer-tips {
+  margin-top: auto;
+  padding: 30rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tips-text {
+  font-size: 26rpx;
+  color: #999;
+  text-align: center;
+  margin-bottom: 20rpx;
+}
+
+.permission-button {
+  background-color: #4A90E2;
+  color: white;
+  padding: 16rpx 40rpx;
+  border-radius: 50rpx;
+  font-size: 28rpx;
+}
+
+.permission-granted {
+  color: #4CAF50;
+  font-weight: bold;
 } 
