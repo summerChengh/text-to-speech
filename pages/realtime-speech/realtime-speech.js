@@ -34,7 +34,8 @@ Page({
     // 音频控制
     audioContext: null, // 音频上下文
     timer: null, // 定时器
-    socketTask: null // WebSocket任务
+    socketTask: null, // WebSocket任务
+    audioData: [] // 收集音频数据
   },
 
   /**
@@ -145,6 +146,7 @@ Page({
    * 开始播报
    */
   startSpeech: function () {
+    let audioData = [];
     const text = this.data.textContent.trim();
     if (!text) {
       util.showError('请先输入文字');
@@ -167,7 +169,7 @@ Page({
         const authUrl = config.xfyun.getAuthUrl(apiSecret, apiKey);
         // 生成Base64编码的参数
         const businessParams = {
-          aue: 'raw',
+          aue: 'lame',
           auf: config.xfyun.audioFormat,
           vcn: config.xfyun.voiceType,
           speed: 50,
@@ -237,6 +239,7 @@ Page({
           // 处理音频数据
           if (message.data && message.data.audio) {
             const audio = wx.base64ToArrayBuffer(message.data.audio);
+            audioData.push(audio);
             
             // 估算音频时长（假设16kHz采样率，16位采样）
             const seconds = audio.byteLength / (16000 * 2);
@@ -245,26 +248,44 @@ Page({
               currentTime: util.formatAudioTime(seconds),
               totalTime: util.formatAudioTime(seconds)
             });
-            
-            // 如果是第一帧数据，开始播放
-            if (message.data.status === 2) {
-              // 最后一帧数据，更新音频文件
-              const fs = wx.getFileSystemManager();
-              const tempFilePath = `${wx.env.USER_DATA_PATH}/temp_speech_${Date.now()}.pcm`;
-              
-              fs.writeFile({
-                filePath: tempFilePath,
-                data: audio,
-                success: () => {
-                  // 更新音频源
-                  if (that.data.audioContext) {
-                    that.data.audioContext.src = tempFilePath;
-                    that.data.audioContext.play();
-                  }
-                },
-                fail: (err) => console.error('更新音频文件失败', err)
-              });
-            }
+          }
+          
+          if (message.data && message.data.status === 2) {
+            // 合成结束，拼接所有音频帧
+            const totalLength = audioData.reduce((acc, buf) => acc + buf.byteLength, 0);
+            const result = new Uint8Array(totalLength);
+            let offset = 0;
+            audioData.forEach(buf => {
+              result.set(new Uint8Array(buf), offset);
+              offset += buf.byteLength;
+            });
+            const fs = wx.getFileSystemManager();
+            const tempFilePath = `${wx.env.USER_DATA_PATH}/tts_${Date.now()}.mp3`;
+            fs.writeFile({
+              filePath: tempFilePath,
+              data: result.buffer,
+              success: () => {
+                const audioContext = wx.createInnerAudioContext();
+                audioContext.src = tempFilePath;
+                audioContext.onPlay(() => {
+                  that.setData({ isSpeaking: true, audioContext });
+                });
+                audioContext.onEnded(() => {
+                  that.setData({ isSpeaking: false, audioContext: null });
+                  fs.unlink({ filePath: tempFilePath });
+                });
+                audioContext.onError((err) => {
+                  util.showError('播放失败');
+                  that.setData({ isSpeaking: false, audioContext: null });
+                });
+                audioContext.play();
+              },
+              fail: (err) => {
+                util.showError('音频处理失败');
+                that.setData({ isSpeaking: false });
+              }
+            });
+            socketTask.close();
           }
         });
         
@@ -318,7 +339,8 @@ Page({
       currentTime: '00:00',
       audioContext: null,
       timer: null,
-      socketTask: null
+      socketTask: null,
+      audioData: []
     });
   },
 
