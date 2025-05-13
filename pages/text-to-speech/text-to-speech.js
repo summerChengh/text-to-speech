@@ -222,66 +222,141 @@ Page({
    * 开始播放
    */
   startPlay: function () {
-    // 如果已经有音频上下文，恢复播放
-    if (this.data.audioContext) {
-      this.data.audioContext.play();
-      this.setData({
-        isPlaying: true
-      });
+    const that = this;
+    const text = this.data.textContent.trim();
+    if (!text) {
+      util.showError('请先输入文本');
       return;
     }
-    
-    // 这里应该调用语音合成API
-    // 这是一个示例，实际应用中需要对接语音合成服务，如科大讯飞、百度等
-    const that = this;
-    
     util.showLoading('正在合成语音...');
-    
-    // 模拟合成过程
-    setTimeout(() => {
-      util.hideLoading();
-      
-      // 创建内部音频上下文
-      const audioContext = wx.createInnerAudioContext();
-      
-      // 使用系统TTS功能（仅作为示例，实际项目中应对接第三方语音合成服务）
-      audioContext.src = 'https://example.com/tts-output.mp3'; // 这是一个示例URL，实际应替换为真实的合成音频URL
-      audioContext.onPlay(() => {
-        console.log('开始播放');
-      });
-      
-      audioContext.onEnded(() => {
-        console.log('播放结束');
-        that.setData({
-          isPlaying: false,
-          audioContext: null
+
+    // 获取API密钥
+    const config = require('../../utils/config.js');
+    const CryptoJS = require('../../utils/crypto-js.js');
+
+    this.getApiKeys()
+      .then(apiKeys => {
+        util.hideLoading();
+        // 生成WebSocket鉴权URL
+        const authUrl = config.xfyun.getAuthUrl(apiKeys.apiSecret, apiKeys.apiKey);
+
+        // 业务参数
+        const businessParams = {
+          aue: 'lame', // 让讯飞返回mp3格式
+          auf: config.xfyun.audioFormat,
+          vcn: this.data.currentVoice.id || config.xfyun.voiceType,
+          speed: this.data.speed,
+          volume: 50,
+          pitch: 50,
+          bgs: 0,
+          tte: 'UTF8'
+        };
+        // 文本base64编码
+        const textBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(text));
+        // WebSocket首帧
+        const frame = {
+          common: { app_id: apiKeys.appId },
+          business: businessParams,
+          data: {
+            status: 2,
+            text: textBase64
+          }
+        };
+
+        // 创建WebSocket连接
+        const socketTask = wx.connectSocket({
+          url: authUrl,
+          success: () => {
+            console.log('WebSocket连接成功');
+          },
+          fail: err => {
+            util.showError('语音合成服务连接失败');
+            that.setData({ isProcessing: false });
+          }
         });
-      });
-      
-      audioContext.onError((err) => {
-        console.error('播放错误', err);
-        that.setData({
-          isPlaying: false,
-          errorMsg: '播放失败，请稍后再试',
-          audioContext: null
+
+        // 监听WebSocket事件
+        let audioData = [];
+        socketTask.onOpen(() => {
+          socketTask.send({
+            data: JSON.stringify(frame),
+            success: () => {
+              that.setData({ isProcessing: true, progressPercent: 10, progressText: '正在合成...' });
+            },
+            fail: (err) => {
+              util.showError('语音合成请求失败');
+              socketTask.close();
+              that.setData({ isProcessing: false });
+            }
+          });
         });
-      });
-      
-      // 设置状态并开始播放
-      that.setData({
-        isPlaying: true,
-        audioContext: audioContext
-      });
-      
-      // 由于这只是一个示例，我们会模拟一个错误，提示用户需要对接真实的语音服务
-      setTimeout(() => {
-        that.setData({
-          isPlaying: false,
-          errorMsg: '示例应用：需要对接实际的语音合成服务',
-          audioContext: null
+
+        socketTask.onMessage((res) => {
+          const message = JSON.parse(res.data);
+          if (message.code !== 0) {
+            util.showError(`语音合成失败: ${message.message}`);
+            socketTask.close();
+            that.setData({ isProcessing: false });
+            return;
+          }
+          if (message.data && message.data.audio) {
+            const audio = wx.base64ToArrayBuffer(message.data.audio);
+            audioData.push(audio);
+            that.setData({ progressPercent: 60, progressText: '正在接收音频...' });
+          }
+          if (message.data && message.data.status === 2) {
+            // 合成结束，拼接音频并播放
+            const totalLength = audioData.reduce((acc, buf) => acc + buf.byteLength, 0);
+            const result = new Uint8Array(totalLength);
+            let offset = 0;
+            audioData.forEach(buf => {
+              result.set(new Uint8Array(buf), offset);
+              offset += buf.byteLength;
+            });
+            const fs = wx.getFileSystemManager();
+            const tempFilePath = `${wx.env.USER_DATA_PATH}/tts_${Date.now()}.pcm`;
+            fs.writeFile({
+              filePath: tempFilePath,
+              data: result.buffer,
+              success: () => {
+                const audioContext = wx.createInnerAudioContext();
+                audioContext.src = tempFilePath;
+                audioContext.onPlay(() => {
+                  that.setData({ isPlaying: true, isProcessing: false, progressPercent: 100, progressText: '播放中', audioContext });
+                });
+                audioContext.onEnded(() => {
+                  that.setData({ isPlaying: false, audioContext: null });
+                  fs.unlink({ filePath: tempFilePath });
+                });
+                audioContext.onError((err) => {
+                  util.showError('播放失败');
+                  that.setData({ isPlaying: false, audioContext: null });
+                });
+                audioContext.play();
+              },
+              fail: (err) => {
+                util.showError('音频处理失败');
+                that.setData({ isProcessing: false });
+              }
+            });
+            socketTask.close();
+          }
         });
-      }, 2000);
-    }, 2000);
+
+        socketTask.onError((err) => {
+          util.showError('WebSocket错误');
+          that.setData({ isProcessing: false });
+        });
+
+        socketTask.onClose(() => {
+          that.setData({ isProcessing: false });
+        });
+      })
+      .catch(err => {
+        util.hideLoading();
+        util.showError('语音合成服务初始化失败');
+        that.setData({ isProcessing: false });
+      });
   },
 
   /**
@@ -319,5 +394,10 @@ Page({
     if (this.data.audioContext) {
       this.data.audioContext.stop();
     }
+  },
+
+  getApiKeys: function() {
+    const config = require('../../utils/config.js');
+    return config.getSecureApiKeys();
   }
 }); 
