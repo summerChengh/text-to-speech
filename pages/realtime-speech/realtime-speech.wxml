@@ -29,7 +29,7 @@
   <!-- 播放控制条 -->
   <view class="playback-control" wx:if="{{isSpeaking}}">
     <view class="progress-bar">
-      <view class="progress-inner" style="width: {{playProgress}}%"></view>
+      <view class="progress-inner" style="width:{{playProgress}}"></view>
     </view>
     <view class="time-info">
       <text>{{currentTime}}</text>

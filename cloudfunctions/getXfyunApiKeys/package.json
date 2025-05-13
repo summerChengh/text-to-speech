@@ -1,5 +1,5 @@
 {
-  "name": "getXfyunApiKeys",
+  "name": "getxfyunapikeys",
   "version": "1.0.0",
   "description": "安全获取科大讯飞API凭证",
   "main": "index.js",
@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "wx-server-sdk": "~2.6.3"
   }
-} 
+}

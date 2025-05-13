@@ -1,6 +1,8 @@
 // 引入工具函数
 const util = require('../../utils/util.js');
-
+// 引入配置和加密方法
+const config = require('../../utils/config.js');
+const CryptoJS = require('../../utils/crypto-js.js');
 // 获取全局应用实例
 const app = getApp();
 
@@ -144,23 +146,25 @@ Page({
    */
   startSpeech: function () {
     const text = this.data.textContent.trim();
-    
     if (!text) {
       util.showError('请先输入文字');
       return;
     }
-    
-    // 获取配置和密钥
-    const config = require('../../utils/config.js');
     const that = this;
-    
     util.showLoading('准备语音合成...');
-    
-    // 安全地获取API密钥
     this.getApiKeys()
       .then(apiKeys => {
         util.hideLoading();
-        
+        const appId = apiKeys.appId;
+        const apiKey = apiKeys.apiKey;
+        const apiSecret = apiKeys.apiSecret;
+        const url = config.xfyun.ttsWebsocketUrl;
+        const host = url.replace(/^wss?:\/\//, '').replace(/\/.*$/, '');
+        const date = new Date().toGMTString();
+        const signatureOrigin = `host: ${host}\ndate: ${date}\nGET /v2/tts HTTP/1.1`;
+        const signatureSha = CryptoJS.HmacSHA256(signatureOrigin, apiSecret);
+        const signature = CryptoJS.enc.Base64.stringify(signatureSha);
+        const authUrl = config.xfyun.getAuthUrl(apiSecret, apiKey);
         // 生成Base64编码的参数
         const businessParams = {
           aue: 'raw',
@@ -172,17 +176,15 @@ Page({
           bgs: 0,
           tte: 'UTF8'
         };
-        
-        const businessParamsBase64 = wx.arrayBufferToBase64(new Uint8Array([...JSON.stringify(businessParams)].map(char => char.charCodeAt(0))));
-        
-        // 计算认证URL
-        const authUrl = config.xfyun.getAuthUrl(apiKeys.apiSecret, apiKeys.apiKey);
-        
-        // 准备音频数据
-        let audioData = [];
-        let totalDuration = 0;
-        let isFirstFrame = true;
-        let audioContext = null;
+        const textBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(text));
+        const frame = {
+          common: { app_id: appId },
+          business: businessParams,
+          data: {
+            status: 2,
+            text: textBase64
+          }
+        };
         
         // 创建WebSocket连接
         const socketTask = wx.connectSocket({
@@ -204,17 +206,6 @@ Page({
           console.log('WebSocket已打开');
           
           // 发送业务参数帧
-          const frame = {
-            common: {
-              app_id: apiKeys.appId
-            },
-            business: JSON.parse(new TextDecoder().decode(wx.base64ToArrayBuffer(businessParamsBase64))),
-            data: {
-              status: 2,
-              text: wx.arrayBufferToBase64(new Uint8Array([...text].map(char => char.charCodeAt(0))))
-            }
-          };
-          
           socketTask.send({
             data: JSON.stringify(frame),
             success: () => {
@@ -246,90 +237,24 @@ Page({
           // 处理音频数据
           if (message.data && message.data.audio) {
             const audio = wx.base64ToArrayBuffer(message.data.audio);
-            audioData.push(audio);
             
             // 估算音频时长（假设16kHz采样率，16位采样）
             const seconds = audio.byteLength / (16000 * 2);
-            totalDuration += seconds;
-            
-            // 更新进度
-            const progressPercent = Math.min(message.data.status === 2 ? 100 : Math.floor((message.data.idx / message.data.total) * 100), 100);
             that.setData({
-              playProgress: progressPercent,
-              currentTime: util.formatAudioTime(totalDuration * (progressPercent / 100)),
-              totalTime: util.formatAudioTime(totalDuration)
+              playProgress: Math.min(message.data.status === 2 ? 100 : Math.floor((message.data.idx / message.data.total) * 100), 100),
+              currentTime: util.formatAudioTime(seconds),
+              totalTime: util.formatAudioTime(seconds)
             });
             
             // 如果是第一帧数据，开始播放
-            if (isFirstFrame) {
-              isFirstFrame = false;
-              
-              // 创建临时文件来存储音频
-              const fs = wx.getFileSystemManager();
-              const tempFilePath = `${wx.env.USER_DATA_PATH}/temp_speech_${Date.now()}.pcm`;
-              
-              fs.writeFile({
-                filePath: tempFilePath,
-                data: that.mergeArrayBuffers(audioData),
-                success: () => {
-                  // 创建音频上下文
-                  audioContext = wx.createInnerAudioContext();
-                  audioContext.src = tempFilePath;
-                  audioContext.volume = that.data.volume / 100;
-                  
-                  // 监听播放事件
-                  audioContext.onPlay(() => {
-                    console.log('开始播放合成语音');
-                  });
-                  
-                  audioContext.onEnded(() => {
-                    console.log('播放结束');
-                    that.setData({
-                      isSpeaking: false,
-                      playProgress: 0,
-                      currentTime: '00:00',
-                      audioContext: null
-                    });
-                    
-                    // 清理临时文件
-                    fs.unlink({
-                      filePath: tempFilePath,
-                      fail: (err) => console.error('删除临时文件失败', err)
-                    });
-                  });
-                  
-                  audioContext.onError((err) => {
-                    console.error('播放错误', err);
-                    util.showError('播放失败');
-                    that.setData({
-                      isSpeaking: false,
-                      audioContext: null
-                    });
-                  });
-                  
-                  that.setData({
-                    audioContext: audioContext
-                  });
-                  
-                  // 播放
-                  audioContext.play();
-                },
-                fail: (err) => {
-                  console.error('写入临时音频文件失败', err);
-                  util.showError('音频处理失败');
-                  that.setData({
-                    isSpeaking: false
-                  });
-                }
-              });
-            } else if (message.data.status === 2) {
+            if (message.data.status === 2) {
               // 最后一帧数据，更新音频文件
               const fs = wx.getFileSystemManager();
               const tempFilePath = `${wx.env.USER_DATA_PATH}/temp_speech_${Date.now()}.pcm`;
               
               fs.writeFile({
                 filePath: tempFilePath,
-                data: that.mergeArrayBuffers(audioData),
+                data: audio,
                 success: () => {
                   // 更新音频源
                   if (that.data.audioContext) {
@@ -367,29 +292,7 @@ Page({
    * 从云函数安全获取API凭证
    */
   getApiKeys: function() {
-    const config = require('../../utils/config.js');
-    
     return config.getSecureApiKeys();
-  },
-
-  /**
-   * 合并ArrayBuffer数组
-   */
-  mergeArrayBuffers: function(buffers) {
-    // 计算总长度
-    const totalLength = buffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
-    
-    // 创建新的ArrayBuffer
-    const result = new Uint8Array(totalLength);
-    
-    // 复制数据
-    let offset = 0;
-    buffers.forEach(buffer => {
-      result.set(new Uint8Array(buffer), offset);
-      offset += buffer.byteLength;
-    });
-    
-    return result.buffer;
   },
 
   /**

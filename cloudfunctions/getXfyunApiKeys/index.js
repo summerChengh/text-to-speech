@@ -9,11 +9,17 @@ cloud.init({
 exports.main = async (event, context) => {
   // 从云环境变量或数据库获取科大讯飞API凭证
   // 实际部署时，请在云开发控制台 -> 云函数 -> 该函数 -> 设置 -> 环境变量 中设置以下值
-  
+ console.log("测试一下：")
+  console.log('process.env:', process.env);
+
   const appId = process.env.XFYUN_APPID;
   const apiKey = process.env.XFYUN_API_KEY;
   const apiSecret = process.env.XFYUN_API_SECRET;
   
+  console.log('xfappId:', appId);
+  console.log('xfapiKey:', apiKey);
+  console.log('xfapiSecret:', apiSecret);
+
   // 对访问进行简单校验，可根据需求增强安全性
   const { OPENID } = cloud.getWXContext();
   

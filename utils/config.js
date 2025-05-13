@@ -1,3 +1,10 @@
+const CryptoJS = require('./crypto-js');
+
+// 添加 btoa 函数定义（Base64编码）
+function btoa(str) {
+  return wx.arrayBufferToBase64(new Uint8Array([...str].map(char => char.charCodeAt(0))).buffer);
+}
+
 // 科大讯飞API配置
 // 使用云开发方式安全存储API凭证
 
